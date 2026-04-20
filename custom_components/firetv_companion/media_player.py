@@ -35,9 +35,6 @@ SUPPORTED = (
     | MediaPlayerEntityFeature.SELECT_SOURCE
 )
 
-if hasattr(MediaPlayerEntityFeature, "PLAY_PAUSE"):
-    SUPPORTED |= MediaPlayerEntityFeature.PLAY_PAUSE
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -149,16 +146,47 @@ class FireTVMediaPlayer(CoordinatorEntity[FireTVCoordinator], MediaPlayerEntity)
     async def async_set_volume_level(self, volume: float) -> None:
         vmax = self._state.get("volume_max") or 15
         level = max(0, min(vmax, round(volume * vmax)))
-        await self._safe(self.coordinator.client.volume_set(level))
+        try:
+            await self.coordinator.client.volume_set(level)
+        except FireTVApiError as err:
+            _LOGGER.warning("volume_set failed: %s", err)
+            return
+        self._optimistic({"volume": level, "muted": False})
 
     async def async_volume_up(self) -> None:
-        await self._safe(self.coordinator.client.volume_up())
+        cur = int(self._state.get("volume", 0))
+        vmax = int(self._state.get("volume_max") or 15)
+        try:
+            await self.coordinator.client.volume_up()
+        except FireTVApiError as err:
+            _LOGGER.warning("volume_up failed: %s", err)
+            return
+        self._optimistic({"volume": min(vmax, cur + 1)})
 
     async def async_volume_down(self) -> None:
-        await self._safe(self.coordinator.client.volume_down())
+        cur = int(self._state.get("volume", 0))
+        try:
+            await self.coordinator.client.volume_down()
+        except FireTVApiError as err:
+            _LOGGER.warning("volume_down failed: %s", err)
+            return
+        self._optimistic({"volume": max(0, cur - 1)})
 
     async def async_mute_volume(self, mute: bool) -> None:
-        await self._safe(self.coordinator.client.volume_mute(mute))
+        try:
+            await self.coordinator.client.volume_mute(mute)
+        except FireTVApiError as err:
+            _LOGGER.warning("volume_mute failed: %s", err)
+            return
+        self._optimistic({"muted": bool(mute)})
+
+    def _optimistic(self, patch: dict[str, Any]) -> None:
+        """Patch cached state so the UI reflects the change instantly."""
+        if self.coordinator.data is None:
+            return
+        self.coordinator.data.update(patch)
+        self.async_write_ha_state()
+        self.hass.async_create_task(self.coordinator.async_request_refresh())
 
     async def async_media_play(self) -> None:
         await self._safe(self.coordinator.client.media_play())

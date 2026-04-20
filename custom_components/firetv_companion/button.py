@@ -16,8 +16,6 @@ from .coordinator import FireTVCoordinator
 NAV_BUTTONS = [
     ("home", "Home", "mdi:home"),
     ("back", "Back", "mdi:arrow-left"),
-    ("recents", "Recents", "mdi:format-list-bulleted"),
-    ("notifications", "Notifications", "mdi:bell"),
     ("power_dialog", "Power menu", "mdi:power"),
 ]
 
