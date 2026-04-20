@@ -1,0 +1,12 @@
+{
+  "domain": "firetv_companion",
+  "name": "Fire TV Companion",
+  "version": "1.0.0",
+  "codeowners": ["@detalhe"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/detalhe/firetv-companion-ha",
+  "issue_tracker": "https://github.com/detalhe/firetv-companion-ha/issues",
+  "iot_class": "local_polling",
+  "requirements": []
+}
