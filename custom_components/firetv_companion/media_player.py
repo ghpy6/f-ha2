@@ -29,13 +29,14 @@ SUPPORTED = (
     | MediaPlayerEntityFeature.VOLUME_MUTE
     | MediaPlayerEntityFeature.PLAY
     | MediaPlayerEntityFeature.PAUSE
-    | MediaPlayerEntityFeature.PLAY_PAUSE
     | MediaPlayerEntityFeature.STOP
     | MediaPlayerEntityFeature.NEXT_TRACK
     | MediaPlayerEntityFeature.PREVIOUS_TRACK
     | MediaPlayerEntityFeature.SELECT_SOURCE
 )
 
+if hasattr(MediaPlayerEntityFeature, "PLAY_PAUSE"):
+    SUPPORTED |= MediaPlayerEntityFeature.PLAY_PAUSE
 
 async def async_setup_entry(
     hass: HomeAssistant,
