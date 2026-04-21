@@ -139,3 +139,26 @@ class FireTVClient:
     async def nav(self, action: str) -> None:
         """action in: home / back / recents / notifications / power_dialog"""
         await self._request("POST", f"/nav/{action}")
+
+    # --- screenshot ---
+
+    async def screenshot_png(self) -> bytes:
+        """Fetch a PNG screenshot of the Fire TV screen.
+
+        Uses a longer timeout than default — the accessibility service has up to
+        3s internally to produce a frame.
+        """
+        url = f"{self._base}/screenshot"
+        timeout = aiohttp.ClientTimeout(total=8.0)
+        try:
+            async with self._session.get(url, headers=self._headers, timeout=timeout) as resp:
+                if resp.status == 401:
+                    raise FireTVAuthError("Invalid token")
+                if resp.status >= 400:
+                    text = await resp.text()
+                    raise FireTVApiError(f"{resp.status}: {text[:200]}")
+                return await resp.read()
+        except asyncio.TimeoutError as err:
+            raise FireTVApiError(f"timeout contacting {url}") from err
+        except aiohttp.ClientError as err:
+            raise FireTVApiError(f"network error: {err}") from err

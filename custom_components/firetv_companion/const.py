@@ -8,7 +8,7 @@ DEFAULT_SCAN_INTERVAL = 5  # seconds
 CONF_TOKEN = "token"
 
 # Platforms loaded by this integration
-PLATFORMS = ["media_player", "button", "sensor"]
+PLATFORMS = ["media_player", "button", "sensor", "camera"]
 
 # Packages hidden from the source (launchable apps) list
 HIDDEN_PACKAGES = {

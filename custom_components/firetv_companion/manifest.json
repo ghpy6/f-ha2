@@ -1,7 +1,7 @@
 {
   "domain": "firetv_companion",
   "name": "Fire TV Companion",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "codeowners": ["@detalhe"],
   "config_flow": true,
   "dependencies": [],
